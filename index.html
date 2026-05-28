@@ -2,15 +2,17 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
     <title>My Portrait</title>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
 
-      body {
+      html, body {
+        width: 100%;
+        min-height: 100%;
         background: #000;
-        min-height: 100vh;
         font-family: "Courier New", monospace;
+        overflow-x: hidden;
       }
 
       /* ── Upload Screen ── */
@@ -19,120 +21,155 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 100vh;
+        width: 100vw;
+        height: 100vh;
         gap: 20px;
+        padding: 20px;
       }
 
       #upload-screen h1 {
         color: #333;
-        font-size: 11px;
+        font-size: clamp(9px, 2vw, 12px);
         letter-spacing: 0.3em;
         text-transform: uppercase;
         font-weight: normal;
+        text-align: center;
       }
 
       label.upload-btn {
         display: inline-flex;
         align-items: center;
         gap: 10px;
-        padding: 12px 30px;
+        padding: clamp(10px, 2vw, 14px) clamp(20px, 5vw, 34px);
         border: 1px solid #2a2a2a;
         border-radius: 4px;
         color: #666;
-        font-size: 12px;
+        font-size: clamp(11px, 2.5vw, 13px);
         letter-spacing: 0.15em;
         cursor: pointer;
-        transition: border-color 0.2s, color 0.2s;
         text-transform: uppercase;
+        transition: border-color 0.2s, color 0.2s;
+        -webkit-tap-highlight-color: transparent;
       }
-      label.upload-btn:hover { border-color: #555; color: #ccc; }
-      label.upload-btn input { display: none; }
+      label.upload-btn:hover,
+      label.upload-btn:active { border-color: #555; color: #ccc; }
+      label.upload-btn input  { display: none; }
 
       /* ── Portrait Screen ── */
-      #portrait-screen { display: none; }
+      #portrait-screen { display: none; width: 100%; }
 
       #portrait {
         display: block;
-        width: 100vw;
+        width: 100%;
         min-height: 100vh;
         background-size: cover;
         background-position: center top;
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
-        font-size: 7px;
         font-weight: bold;
-        line-height: 1.0;
-        letter-spacing: 1.8px;
-        word-spacing: 1px;
         word-break: break-all;
+        white-space: normal;
+        /* font-size & letter-spacing set by JS based on screen width */
+        padding-bottom: 80px; /* space for controls bar */
       }
 
-      /* ── Controls Panel ── */
+      /* ── Controls Bar ── */
       #controls {
         position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: rgba(0, 0, 0, 0.85);
+        bottom: 0; left: 0; right: 0;
+        background: rgba(0, 0, 0, 0.9);
         border-top: 1px solid #1a1a1a;
-        padding: 12px 20px;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        padding: clamp(8px, 2vw, 12px) clamp(10px, 3vw, 20px);
         display: flex;
         align-items: center;
-        gap: 20px;
-        flex-wrap: wrap;
-        backdrop-filter: blur(10px);
+        gap: clamp(10px, 2vw, 20px);
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
       }
+      #controls::-webkit-scrollbar { display: none; }
 
       .ctrl {
         display: flex;
         flex-direction: column;
-        gap: 4px;
-        min-width: 100px;
+        gap: 3px;
+        min-width: clamp(70px, 15vw, 110px);
+        flex-shrink: 0;
       }
       .ctrl span {
-        font-size: 9px;
+        font-size: clamp(8px, 1.5vw, 10px);
         color: #444;
-        letter-spacing: 0.15em;
+        letter-spacing: 0.12em;
         text-transform: uppercase;
+        white-space: nowrap;
       }
-      .ctrl input[type=range] {
+      .ctrl span b { color: #666; }
+
+      input[type=range] {
         width: 100%;
         accent-color: #fff;
         cursor: pointer;
-        height: 2px;
+        height: 3px;
+        -webkit-appearance: none;
+      }
+      input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px; height: 14px;
+        background: #fff;
+        border-radius: 50%;
+        cursor: pointer;
       }
 
       .ctrl-check {
         display: flex;
         align-items: center;
-        gap: 6px;
-        font-size: 10px;
+        gap: 5px;
+        font-size: clamp(9px, 1.8vw, 11px);
         color: #444;
         letter-spacing: 0.1em;
         text-transform: uppercase;
         cursor: pointer;
+        flex-shrink: 0;
+        -webkit-tap-highlight-color: transparent;
+        white-space: nowrap;
       }
-      .ctrl-check input { accent-color: #fff; cursor: pointer; }
+      .ctrl-check input { accent-color: #fff; cursor: pointer; width: 14px; height: 14px; }
 
       label.change-btn {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 6px 14px;
+        padding: clamp(5px, 1.5vw, 8px) clamp(10px, 2vw, 16px);
         border: 1px solid #222;
         border-radius: 4px;
         color: #555;
-        font-size: 10px;
+        font-size: clamp(9px, 1.8vw, 11px);
         letter-spacing: 0.1em;
         text-transform: uppercase;
         cursor: pointer;
         margin-left: auto;
+        flex-shrink: 0;
         transition: border-color 0.2s, color 0.2s;
         white-space: nowrap;
+        -webkit-tap-highlight-color: transparent;
       }
-      label.change-btn:hover { border-color: #555; color: #ccc; }
-      label.change-btn input { display: none; }
+      label.change-btn:hover,
+      label.change-btn:active { border-color: #555; color: #ccc; }
+      label.change-btn input  { display: none; }
+
+      /* ── Mobile tweaks ── */
+      @media (max-width: 480px) {
+        #controls { gap: 12px; padding: 10px 12px; }
+        .ctrl { min-width: 80px; }
+      }
+
+      @media (max-width: 360px) {
+        .ctrl { min-width: 70px; }
+      }
     </style>
   </head>
   <body>
@@ -150,7 +187,6 @@
     <div id="portrait-screen">
       <p id="portrait"></p>
 
-      <!-- Controls -->
       <div id="controls">
         <div class="ctrl">
           <span>Brightness <b id="bVal">1.4</b></span>
@@ -162,7 +198,7 @@
         </div>
         <div class="ctrl">
           <span>Font Size <b id="fVal">7</b>px</span>
-          <input type="range" id="fontSize" min="4" max="14" step="0.5" value="7" />
+          <input type="range" id="fontSize" min="3" max="14" step="0.5" value="7" />
         </div>
         <label class="ctrl-check">
           <input type="checkbox" id="invertToggle" /> Invert
@@ -171,30 +207,38 @@
           <input type="checkbox" id="grayscaleToggle" checked /> Grayscale
         </label>
         <label class="change-btn">
-          📷 Change Photo
+          📷 Change
           <input type="file" id="swapInput" accept="image/*" />
         </label>
       </div>
     </div>
 
     <script>
-      const LYRICS = `Lights go down and the night is calling to me yeah I hear voices singing songs in the street And I know that we won't be going home for so long for so long But I know that I won't be on my own yeah I love this feeling and Right now I wish you were here with me Oh-ooh Cause right now Everything is new to me Oh-ooh You know I can't fight the feeling And every night I feel it Right now I wish you were here with me Oh-ooh Late night spaces With all our friends you and me yeah Love these faces Just like how it used to be And we won't be going home For so long for so long But I know I won't be on my own On my own I'm feeling like Right now I wish you were here with me Oh-ooh Cause right now Everything is new to me Oh-ooh You know I can't fight the feeling And every night I feel it Right now I wish you were here with me Oh-ooh And I could do this forever Woah-oh-oh woah-oh-oh And let's go crazy together Woah-oh-oh woah-oh-oh Lights go down and the night is calling to me yeah I hear voices singing songs in the street And I know that we won't be going home for so long for so long But I know that I won't be on my own yeah I love this feeling and Right now I wish you were here with me Oh-ooh Cause right now Everything is new to me Oh-ooh You know I can't fight the feeling And every night I feel it Right now I wish you were here with me Oh-ooh Late night spaces With all our friends you and me yeah Love these faces Just like how it used to be And we won't be going home For so long for so long But I know I won't be on my own On my own I'm feeling like Right now I wish you were here with me Oh-ooh Cause right now Everything is new to me Oh-ooh You know I can't fight the feeling And every night I feel it Right now I wish you were here with me Oh-ooh And I could do this forever Woah-oh-oh woah-oh-oh And let's go crazy together Woah-oh-oh woah-oh-oh Lights go down and the night is calling to me yeah I hear voices singing songs in the street And I know that we won't be going home for so long for so long But I know that I won't be on my own yeah I love this feeling and Right now I wish you were here with me Oh-ooh Cause right now Everything is new to me Oh-ooh You know I can't fight the feeling And every night I feel it Right now I wish you were here with me Oh-ooh Late night spaces With all our friends you and me yeah Love these faces Just like how it used to be`;
+      const LYRICS = `Lights go down and the night is calling to me yeah I hear voices singing songs in the street And I know that we won't be going home for so long for so long But I know that I won't be on my own yeah I love this feeling and Right now I wish you were here with me Oh-ooh Cause right now Everything is new to me Oh-ooh You know I can't fight the feeling And every night I feel it Right now I wish you were here with me Oh-ooh Late night spaces With all our friends you and me yeah Love these faces Just like how it used to be And we won't be going home For so long for so long But I know I won't be on my own On my own I'm feeling like Right now I wish you were here with me Oh-ooh Cause right now Everything is new to me Oh-ooh You know I can't fight the feeling And every night I feel it Right now I wish you were here with me Oh-ooh And I could do this forever Woah-oh-oh woah-oh-oh And let's go crazy together Woah-oh-oh woah-oh-oh Lights go down and the night is calling to me yeah I hear voices singing songs in the street And I know that we won't be going home for so long for so long But I know that I won't be on my own yeah I love this feeling and Right now I wish you were here with me Oh-ooh Cause right now Everything is new to me Oh-ooh You know I can't fight the feeling And every night I feel it Right now I wish you were here with me Oh-ooh Late night spaces With all our friends you and me yeah Love these faces Just like how it used to be And we won't be going home For so long for so long But I know I won't be on my own On my own I'm feeling like Right now I wish you were here with me Oh-ooh Cause right now Everything is new to me Oh-ooh You know I can't fight the feeling And every night I feel it Right now I wish you were here with me Oh-ooh And I could do this forever Woah-oh-oh woah-oh-oh And let's go crazy together Woah-oh-oh woah-oh-oh Lights go down and the night is calling to me yeah I hear voices singing songs in the street And I know that we won't be going home for so long for so long But I know that I won't be on my own yeah I love this feeling and Right now I wish you were here with me Oh-ooh Cause right now Everything is new to me Oh-ooh You know I can't fight the feeling And every night I feel it Right now I wish you were here with me Oh-ooh Late night spaces With all our friends you and me yeah Love these faces Just like how it used to be And we won't be going home For so long for so long But I know I won't be on my own On my own I'm feeling like Right now I wish you were here with me Oh-ooh Cause right now Everything is new to me Oh-ooh You know I can't fight the feeling And every night I feel it Right now I wish you were here with me Oh-ooh And I could do this forever Woah-oh-oh woah-oh-oh And let's go crazy together Woah-oh-oh woah-oh-oh`;
 
-      const portrait       = document.getElementById('portrait');
-      const uploadScreen   = document.getElementById('upload-screen');
-      const portraitScreen = document.getElementById('portrait-screen');
+      const portrait         = document.getElementById('portrait');
+      const uploadScreen     = document.getElementById('upload-screen');
+      const portraitScreen   = document.getElementById('portrait-screen');
       const brightnessSlider = document.getElementById('brightness');
       const contrastSlider   = document.getElementById('contrast');
       const fontSizeSlider   = document.getElementById('fontSize');
       const invertToggle     = document.getElementById('invertToggle');
       const grayscaleToggle  = document.getElementById('grayscaleToggle');
 
-      let currentSrc = '';
+      /* Auto font size based on screen width */
+      function getAutoFontSize() {
+        const w = window.innerWidth;
+        if (w <= 360)  return 4.5;
+        if (w <= 480)  return 5.5;
+        if (w <= 768)  return 6;
+        if (w <= 1024) return 7;
+        return 8;
+      }
 
       function buildText() {
         const words = LYRICS.trim().split(/\s+/);
         let t = '', i = 0;
-        while (t.length < 15000) { t += words[i % words.length] + ' '; i++; }
+        while (t.length < 18000) { t += words[i % words.length] + ' '; i++; }
         return t;
       }
 
@@ -209,18 +253,23 @@
       }
 
       function applyFontSize() {
-        const fs = fontSizeSlider.value;
-        portrait.style.fontSize = fs + 'px';
+        const fs = parseFloat(fontSizeSlider.value);
+        portrait.style.fontSize      = fs + 'px';
         portrait.style.letterSpacing = (fs * 0.25) + 'px';
+        portrait.style.lineHeight    = fs <= 5 ? '0.95' : '1.0';
         document.getElementById('fVal').textContent = fs;
       }
 
       function loadImage(src) {
-        currentSrc = src;
         portrait.textContent = buildText();
         portrait.style.backgroundImage = `url('${src}')`;
-        applyFilter();
+
+        // set auto font size from screen
+        const autoFs = getAutoFontSize();
+        fontSizeSlider.value = autoFs;
+
         applyFontSize();
+        applyFilter();
         uploadScreen.style.display   = 'none';
         portraitScreen.style.display = 'block';
       }
@@ -239,6 +288,14 @@
       fontSizeSlider.addEventListener('input',   applyFontSize);
       invertToggle.addEventListener('change',    applyFilter);
       grayscaleToggle.addEventListener('change', applyFilter);
+
+      /* Re-adjust font size on resize */
+      window.addEventListener('resize', () => {
+        if (portraitScreen.style.display === 'block') {
+          fontSizeSlider.value = getAutoFontSize();
+          applyFontSize();
+        }
+      });
     </script>
 
   </body>
