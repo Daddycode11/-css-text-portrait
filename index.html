@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Portrait</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      body {
+        background: #000;
+        min-height: 100vh;
+        font-family: "Courier New", monospace;
+      }
+
+      /* ── Upload Screen ── */
+      #upload-screen {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        gap: 20px;
+      }
+
+      #upload-screen h1 {
+        color: #333;
+        font-size: 11px;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        font-weight: normal;
+      }
+
+      label.upload-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 30px;
+        border: 1px solid #2a2a2a;
+        border-radius: 4px;
+        color: #666;
+        font-size: 12px;
+        letter-spacing: 0.15em;
+        cursor: pointer;
+        transition: border-color 0.2s, color 0.2s;
+        text-transform: uppercase;
+      }
+      label.upload-btn:hover { border-color: #555; color: #ccc; }
+      label.upload-btn input { display: none; }
+
+      /* ── Portrait Screen ── */
+      #portrait-screen { display: none; }
+
+      #portrait {
+        display: block;
+        width: 100vw;
+        min-height: 100vh;
+        background-size: cover;
+        background-position: center top;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-size: 7px;
+        font-weight: bold;
+        line-height: 1.0;
+        letter-spacing: 1.8px;
+        word-spacing: 1px;
+        word-break: break-all;
+      }
+
+      /* ── Controls Panel ── */
+      #controls {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.85);
+        border-top: 1px solid #1a1a1a;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        backdrop-filter: blur(10px);
+      }
+
+      .ctrl {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 100px;
+      }
+      .ctrl span {
+        font-size: 9px;
+        color: #444;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+      }
+      .ctrl input[type=range] {
+        width: 100%;
+        accent-color: #fff;
+        cursor: pointer;
+        height: 2px;
+      }
+
+      .ctrl-check {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 10px;
+        color: #444;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+      .ctrl-check input { accent-color: #fff; cursor: pointer; }
+
+      label.change-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border: 1px solid #222;
+        border-radius: 4px;
+        color: #555;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        cursor: pointer;
+        margin-left: auto;
+        transition: border-color 0.2s, color 0.2s;
+        white-space: nowrap;
+      }
+      label.change-btn:hover { border-color: #555; color: #ccc; }
+      label.change-btn input { display: none; }
+    </style>
+  </head>
+  <body>
+
+    <!-- Upload Screen -->
+    <div id="upload-screen">
+      <h1>✦ CSS Text Portrait</h1>
+      <label class="upload-btn">
+        📷 Upload Photo
+        <input type="file" id="imgInput" accept="image/*" />
+      </label>
+    </div>
+
+    <!-- Portrait Screen -->
+    <div id="portrait-screen">
+      <p id="portrait"></p>
+
+      <!-- Controls -->
+      <div id="controls">
+        <div class="ctrl">
+          <span>Brightness <b id="bVal">1.4</b></span>
+          <input type="range" id="brightness" min="0.5" max="4" step="0.1" value="1.4" />
+        </div>
+        <div class="ctrl">
+          <span>Contrast <b id="cVal">2.0</b></span>
+          <input type="range" id="contrast" min="0.5" max="5" step="0.1" value="2.0" />
+        </div>
+        <div class="ctrl">
+          <span>Font Size <b id="fVal">7</b>px</span>
+          <input type="range" id="fontSize" min="4" max="14" step="0.5" value="7" />
+        </div>
+        <label class="ctrl-check">
+          <input type="checkbox" id="invertToggle" /> Invert
+        </label>
+        <label class="ctrl-check">
+          <input type="checkbox" id="grayscaleToggle" checked /> Grayscale
+        </label>
+        <label class="change-btn">
+          📷 Change Photo
+          <input type="file" id="swapInput" accept="image/*" />
+        </label>
+      </div>
+    </div>
+
+    <script>
+      const LYRICS = `Lights go down and the night is calling to me yeah I hear voices singing songs in the street And I know that we won't be going home for so long for so long But I know that I won't be on my own yeah I love this feeling and Right now I wish you were here with me Oh-ooh Cause right now Everything is new to me Oh-ooh You know I can't fight the feeling And every night I feel it Right now I wish you were here with me Oh-ooh Late night spaces With all our friends you and me yeah Love these faces Just like how it used to be And we won't be going home For so long for so long But I know I won't be on my own On my own I'm feeling like Right now I wish you were here with me Oh-ooh Cause right now Everything is new to me Oh-ooh You know I can't fight the feeling And every night I feel it Right now I wish you were here with me Oh-ooh And I could do this forever Woah-oh-oh woah-oh-oh And let's go crazy together Woah-oh-oh woah-oh-oh Lights go down and the night is calling to me yeah I hear voices singing songs in the street And I know that we won't be going home for so long for so long But I know that I won't be on my own yeah I love this feeling and Right now I wish you were here with me Oh-ooh Cause right now Everything is new to me Oh-ooh You know I can't fight the feeling And every night I feel it Right now I wish you were here with me Oh-ooh Late night spaces With all our friends you and me yeah Love these faces Just like how it used to be And we won't be going home For so long for so long But I know I won't be on my own On my own I'm feeling like Right now I wish you were here with me Oh-ooh Cause right now Everything is new to me Oh-ooh You know I can't fight the feeling And every night I feel it Right now I wish you were here with me Oh-ooh And I could do this forever Woah-oh-oh woah-oh-oh And let's go crazy together Woah-oh-oh woah-oh-oh Lights go down and the night is calling to me yeah I hear voices singing songs in the street And I know that we won't be going home for so long for so long But I know that I won't be on my own yeah I love this feeling and Right now I wish you were here with me Oh-ooh Cause right now Everything is new to me Oh-ooh You know I can't fight the feeling And every night I feel it Right now I wish you were here with me Oh-ooh Late night spaces With all our friends you and me yeah Love these faces Just like how it used to be`;
+
+      const portrait       = document.getElementById('portrait');
+      const uploadScreen   = document.getElementById('upload-screen');
+      const portraitScreen = document.getElementById('portrait-screen');
+      const brightnessSlider = document.getElementById('brightness');
+      const contrastSlider   = document.getElementById('contrast');
+      const fontSizeSlider   = document.getElementById('fontSize');
+      const invertToggle     = document.getElementById('invertToggle');
+      const grayscaleToggle  = document.getElementById('grayscaleToggle');
+
+      let currentSrc = '';
+
+      function buildText() {
+        const words = LYRICS.trim().split(/\s+/);
+        let t = '', i = 0;
+        while (t.length < 15000) { t += words[i % words.length] + ' '; i++; }
+        return t;
+      }
+
+      function applyFilter() {
+        const b  = brightnessSlider.value;
+        const c  = contrastSlider.value;
+        const gs = grayscaleToggle.checked ? 'grayscale(1) ' : '';
+        const iv = invertToggle.checked    ? 'invert(1) '    : '';
+        portrait.style.filter = `${gs}${iv}contrast(${c}) brightness(${b})`;
+        document.getElementById('bVal').textContent = b;
+        document.getElementById('cVal').textContent = c;
+      }
+
+      function applyFontSize() {
+        const fs = fontSizeSlider.value;
+        portrait.style.fontSize = fs + 'px';
+        portrait.style.letterSpacing = (fs * 0.25) + 'px';
+        document.getElementById('fVal').textContent = fs;
+      }
+
+      function loadImage(src) {
+        currentSrc = src;
+        portrait.textContent = buildText();
+        portrait.style.backgroundImage = `url('${src}')`;
+        applyFilter();
+        applyFontSize();
+        uploadScreen.style.display   = 'none';
+        portraitScreen.style.display = 'block';
+      }
+
+      function handleFile(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => loadImage(e.target.result);
+        reader.readAsDataURL(file);
+      }
+
+      document.getElementById('imgInput').addEventListener('change',  e => handleFile(e.target.files[0]));
+      document.getElementById('swapInput').addEventListener('change', e => handleFile(e.target.files[0]));
+      brightnessSlider.addEventListener('input', applyFilter);
+      contrastSlider.addEventListener('input',   applyFilter);
+      fontSizeSlider.addEventListener('input',   applyFontSize);
+      invertToggle.addEventListener('change',    applyFilter);
+      grayscaleToggle.addEventListener('change', applyFilter);
+    </script>
+
+  </body>
+</html>
