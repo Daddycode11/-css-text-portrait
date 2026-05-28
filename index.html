@@ -2,14 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>My Portrait</title>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
 
       html, body {
         width: 100%;
-        min-height: 100%;
+        height: 100%;
         background: #000;
         font-family: "Courier New", monospace;
         overflow-x: hidden;
@@ -29,39 +29,44 @@
 
       #upload-screen h1 {
         color: #333;
-        font-size: clamp(9px, 2vw, 12px);
+        font-size: 11px;
         letter-spacing: 0.3em;
         text-transform: uppercase;
         font-weight: normal;
-        text-align: center;
       }
 
       label.upload-btn {
         display: inline-flex;
         align-items: center;
         gap: 10px;
-        padding: clamp(10px, 2vw, 14px) clamp(20px, 5vw, 34px);
+        padding: 14px 32px;
         border: 1px solid #2a2a2a;
         border-radius: 4px;
         color: #666;
-        font-size: clamp(11px, 2.5vw, 13px);
-        letter-spacing: 0.15em;
+        font-size: 13px;
+        letter-spacing: 0.12em;
         cursor: pointer;
         text-transform: uppercase;
         transition: border-color 0.2s, color 0.2s;
         -webkit-tap-highlight-color: transparent;
       }
-      label.upload-btn:hover,
       label.upload-btn:active { border-color: #555; color: #ccc; }
       label.upload-btn input  { display: none; }
 
       /* ── Portrait Screen ── */
-      #portrait-screen { display: none; width: 100%; }
+      #portrait-screen {
+        display: none;
+        width: 100vw;
+        overflow: hidden;
+      }
 
       #portrait {
         display: block;
-        width: 100%;
-        min-height: 100vh;
+        /* Critical: exact viewport width, no overflow */
+        width: 100vw;
+        max-width: 100vw;
+        overflow: hidden;
+        min-height: calc(100vh - 70px);
         background-size: cover;
         background-position: center top;
         -webkit-background-clip: text;
@@ -69,107 +74,113 @@
         color: transparent;
         font-weight: bold;
         word-break: break-all;
-        white-space: normal;
-        /* font-size & letter-spacing set by JS based on screen width */
-        padding-bottom: 80px; /* space for controls bar */
+        word-spacing: 0px;
+        line-height: 1.0;
+        /* font-size & letter-spacing set dynamically by JS */
       }
 
       /* ── Controls Bar ── */
       #controls {
         position: fixed;
         bottom: 0; left: 0; right: 0;
-        background: rgba(0, 0, 0, 0.9);
+        height: 70px;
+        background: rgba(0, 0, 0, 0.92);
         border-top: 1px solid #1a1a1a;
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
-        padding: clamp(8px, 2vw, 12px) clamp(10px, 3vw, 20px);
         display: flex;
         align-items: center;
-        gap: clamp(10px, 2vw, 20px);
-        flex-wrap: nowrap;
+        gap: 10px;
+        padding: 0 12px;
         overflow-x: auto;
+        overflow-y: hidden;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
+        z-index: 999;
       }
       #controls::-webkit-scrollbar { display: none; }
 
       .ctrl {
         display: flex;
         flex-direction: column;
-        gap: 3px;
-        min-width: clamp(70px, 15vw, 110px);
+        gap: 4px;
+        min-width: 90px;
         flex-shrink: 0;
       }
       .ctrl span {
-        font-size: clamp(8px, 1.5vw, 10px);
-        color: #444;
-        letter-spacing: 0.12em;
+        font-size: 9px;
+        color: #555;
+        letter-spacing: 0.1em;
         text-transform: uppercase;
         white-space: nowrap;
       }
-      .ctrl span b { color: #666; }
+      .ctrl span b { color: #888; }
 
       input[type=range] {
         width: 100%;
         accent-color: #fff;
         cursor: pointer;
-        height: 3px;
         -webkit-appearance: none;
+        height: 2px;
+        background: #333;
+        border-radius: 2px;
+        outline: none;
       }
       input[type=range]::-webkit-slider-thumb {
         -webkit-appearance: none;
-        width: 14px; height: 14px;
+        width: 16px; height: 16px;
         background: #fff;
         border-radius: 50%;
         cursor: pointer;
       }
+      input[type=range]::-moz-range-thumb {
+        width: 16px; height: 16px;
+        background: #fff;
+        border-radius: 50%;
+        cursor: pointer;
+        border: none;
+      }
 
       .ctrl-check {
         display: flex;
+        flex-direction: column;
         align-items: center;
         gap: 5px;
-        font-size: clamp(9px, 1.8vw, 11px);
-        color: #444;
+        font-size: 9px;
+        color: #555;
         letter-spacing: 0.1em;
         text-transform: uppercase;
         cursor: pointer;
         flex-shrink: 0;
         -webkit-tap-highlight-color: transparent;
-        white-space: nowrap;
       }
-      .ctrl-check input { accent-color: #fff; cursor: pointer; width: 14px; height: 14px; }
+      .ctrl-check input {
+        width: 16px; height: 16px;
+        accent-color: #fff;
+        cursor: pointer;
+      }
 
       label.change-btn {
         display: inline-flex;
+        flex-direction: column;
         align-items: center;
-        gap: 6px;
-        padding: clamp(5px, 1.5vw, 8px) clamp(10px, 2vw, 16px);
+        gap: 4px;
+        padding: 6px 12px;
         border: 1px solid #222;
         border-radius: 4px;
         color: #555;
-        font-size: clamp(9px, 1.8vw, 11px);
+        font-size: 9px;
         letter-spacing: 0.1em;
         text-transform: uppercase;
         cursor: pointer;
-        margin-left: auto;
         flex-shrink: 0;
+        margin-left: auto;
         transition: border-color 0.2s, color 0.2s;
-        white-space: nowrap;
         -webkit-tap-highlight-color: transparent;
+        white-space: nowrap;
       }
-      label.change-btn:hover,
       label.change-btn:active { border-color: #555; color: #ccc; }
       label.change-btn input  { display: none; }
-
-      /* ── Mobile tweaks ── */
-      @media (max-width: 480px) {
-        #controls { gap: 12px; padding: 10px 12px; }
-        .ctrl { min-width: 80px; }
-      }
-
-      @media (max-width: 360px) {
-        .ctrl { min-width: 70px; }
-      }
     </style>
   </head>
   <body>
@@ -197,14 +208,16 @@
           <input type="range" id="contrast" min="0.5" max="5" step="0.1" value="2.0" />
         </div>
         <div class="ctrl">
-          <span>Font Size <b id="fVal">7</b>px</span>
+          <span>Font <b id="fVal"></b>px</span>
           <input type="range" id="fontSize" min="3" max="14" step="0.5" value="7" />
         </div>
         <label class="ctrl-check">
-          <input type="checkbox" id="invertToggle" /> Invert
+          <input type="checkbox" id="invertToggle" />
+          Invert
         </label>
         <label class="ctrl-check">
-          <input type="checkbox" id="grayscaleToggle" checked /> Grayscale
+          <input type="checkbox" id="grayscaleToggle" checked />
+          Gray
         </label>
         <label class="change-btn">
           📷 Change
@@ -225,20 +238,30 @@
       const invertToggle     = document.getElementById('invertToggle');
       const grayscaleToggle  = document.getElementById('grayscaleToggle');
 
-      /* Auto font size based on screen width */
+      /* Calculate optimal font size based on screen width */
       function getAutoFontSize() {
         const w = window.innerWidth;
-        if (w <= 360)  return 4.5;
-        if (w <= 480)  return 5.5;
-        if (w <= 768)  return 6;
-        if (w <= 1024) return 7;
-        return 8;
+        if (w <= 320) return 4.0;
+        if (w <= 375) return 4.5;
+        if (w <= 480) return 5.0;
+        if (w <= 600) return 5.5;
+        if (w <= 768) return 6.0;
+        if (w <= 1024) return 7.0;
+        return 8.0;
+      }
+
+      /* Calculate letter-spacing — keep tight on mobile to avoid overflow */
+      function getLetterSpacing(fs) {
+        const w = window.innerWidth;
+        if (w <= 480) return (fs * 0.08) + 'px';
+        if (w <= 768) return (fs * 0.15) + 'px';
+        return (fs * 0.22) + 'px';
       }
 
       function buildText() {
         const words = LYRICS.trim().split(/\s+/);
         let t = '', i = 0;
-        while (t.length < 18000) { t += words[i % words.length] + ' '; i++; }
+        while (t.length < 20000) { t += words[i % words.length] + ' '; i++; }
         return t;
       }
 
@@ -255,19 +278,16 @@
       function applyFontSize() {
         const fs = parseFloat(fontSizeSlider.value);
         portrait.style.fontSize      = fs + 'px';
-        portrait.style.letterSpacing = (fs * 0.25) + 'px';
-        portrait.style.lineHeight    = fs <= 5 ? '0.95' : '1.0';
+        portrait.style.letterSpacing = getLetterSpacing(fs);
+        portrait.style.lineHeight    = fs <= 5 ? '0.98' : '1.0';
         document.getElementById('fVal').textContent = fs;
       }
 
       function loadImage(src) {
         portrait.textContent = buildText();
         portrait.style.backgroundImage = `url('${src}')`;
-
-        // set auto font size from screen
         const autoFs = getAutoFontSize();
         fontSizeSlider.value = autoFs;
-
         applyFontSize();
         applyFilter();
         uploadScreen.style.display   = 'none';
@@ -289,7 +309,6 @@
       invertToggle.addEventListener('change',    applyFilter);
       grayscaleToggle.addEventListener('change', applyFilter);
 
-      /* Re-adjust font size on resize */
       window.addEventListener('resize', () => {
         if (portraitScreen.style.display === 'block') {
           fontSizeSlider.value = getAutoFontSize();
